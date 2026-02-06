@@ -1,23 +1,35 @@
 import { useEffect, useState } from "react";
-import { api } from "./api";
-import AddShipment from "./components/AddShipment";
-import ShipmentList from "./components/ShipmentList";
+import axios from "axios";
 
 function App() {
   const [shipments, setShipments] = useState([]);
 
-  const load = async () => {
-    const res = await api.get("/shipments");
-    setShipments(res.data);
-  };
-
-  useEffect(() => { load(); }, []);
+  useEffect(() => {
+    axios
+      .get("http://localhost:5000/api/shipments")
+      .then((res) => setShipments(res.data))
+      .catch(() => console.log("Backend not connected"));
+  }, []);
 
   return (
-    <div>
-      <h2>SwiftBL Shipment Manager</h2>
-      <AddShipment refresh={load} />
-      <ShipmentList data={shipments} refresh={load} />
+    <div style={{ padding: "20px", fontFamily: "Arial" }}>
+      <h1>Shipment Management System</h1>
+      <p>SwiftBL MERN Assignment</p>
+
+      {shipments.length === 0 ? (
+        <p>No shipments available.</p>
+      ) : (
+        shipments.map((s) => (
+          <div
+            key={s._id}
+            style={{ border: "1px solid #ccc", margin: "10px", padding: "10px" }}
+          >
+            <strong>{s.shipmentId}</strong> <br />
+            {s.origin} → {s.destination} <br />
+            Status: {s.status}
+          </div>
+        ))
+      )}
     </div>
   );
 }
